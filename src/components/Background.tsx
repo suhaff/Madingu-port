@@ -1,4 +1,4 @@
-import Particles from "@tsparticles/react";
+import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { useEffect, useState } from "react";
 
@@ -6,46 +6,42 @@ const Background = () => {
   const [init, setInit] = useState(false);
 
   useEffect(() => {
-    loadSlim().then(() => setInit(true));
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine); // ✅ FIXED
+    }).then(() => {
+      setInit(true);
+    });
   }, []);
 
   if (!init) return null;
 
   return (
     <Particles
+      id="tsparticles"
       options={{
         fullScreen: { enable: true, zIndex: -1 },
 
         particles: {
-          number: { value: 20 },
+          number: { value: 25 },
+
+          color: { value: "#ff4da6" },
 
           shape: {
-            type: "image",
-            image: {
-              src: "https://cdn-icons-png.flaticon.com/512/765/765613.png",
-              width: 32,
-              height: 32,
-            },
+            type: "circle", // ✅ safe (no TS error)
           },
 
-          size: { value: 15 },
+          opacity: { value: 0.5 },
+
+          size: { value: { min: 4, max: 10 } },
 
           move: {
             enable: true,
-            speed: 1.5,
+            speed: 1,
             direction: "bottom",
-            random: true,
-          },
-
-          rotate: {
-            value: 0,
-            animation: {
-              enable: true,
-              speed: 5,
+            outModes: {
+              default: "out",
             },
           },
-
-          opacity: { value: 0.8 },
         },
       }}
     />
