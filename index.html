@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- ===== BASIC SETUP ===== -->
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ===== SEO ===== -->
+    <title>Ibtism Gul | AI Engineer Portfolio</title>
+    <meta name="description" content="AI Engineer Portfolio - Machine Learning, Computer Vision, Deep Learning Projects" />
+
+    <!-- ===== FONTS ===== -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+
+    <!-- ===== THEME COLOR ===== -->
+    <meta name="theme-color" content="#ff4da6" />
+
+    <!-- ===== OPEN GRAPH (for sharing) ===== -->
+    <meta property="og:title" content="Ibtism Gul Portfolio" />
+    <meta property="og:description" content="AI Engineer • Machine Learning • Computer Vision" />
+    <meta property="og:type" content="website" />
+
+    <!-- ===== OPTIONAL: EMAILJS (not required if using npm package) ===== -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script> -->
+
+  </head>
+
+  <body>
+    <!-- ===== ROOT APP ===== -->
+    <div id="root"></div>
+
+    <!-- ===== OPTIONAL: LOADING SCREEN ===== -->
+    <div id="loader">
+      <span>Loading...</span>
+    </div>
+
+    <!-- ===== MAIN SCRIPT ===== -->
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- ===== OPTIONAL: CURSOR SCRIPT (fallback if not in React) ===== -->
+    <script>
+      const cursor = document.createElement("div");
+      cursor.className = "cursor";
+      document.body.appendChild(cursor);
+
+      window.addEventListener("mousemove", (e) => {
+        cursor.style.left = e.clientX + "px";
+        cursor.style.top = e.clientY + "px";
+      });
+    </script>
+
+    <!-- ===== LOADER STYLE ===== -->
+    <style>
+      #loader {
+        position: fixed;
+        inset: 0;
+        background: #0f0a1a;
+        color: #ff4da6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Poppins, sans-serif;
+        z-index: 9999;
+        animation: fadeOut 1s ease forwards;
+        animation-delay: 1s;
+      }
+
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+    </style>
+  </body>
+</html>
