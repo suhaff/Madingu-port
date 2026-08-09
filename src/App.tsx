@@ -1068,7 +1068,7 @@ function App() {
         </a>
 
         <span>
-          Designed & built with React, TypeScript and motion.
+        © 2026 Suhaffinity — All rights reserved.
         </span>
 
         <a href="#home">Back to top ↑</a>
