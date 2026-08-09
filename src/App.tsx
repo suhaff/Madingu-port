@@ -1,106 +1,53 @@
-import { motion } from "framer-motion";
-import { useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, useState } from "react";
+import type { FormEvent, ReactNode } from "react";
 import emailjs from "@emailjs/browser";
 import Background from "./components/Background";
 import profile from "./assets/profile.jpg";
 import "./App.css";
 
-function App() {
-  const form = useRef<HTMLFormElement>(null);
+const nav = [["home","Home"],["about","About"],["experience","Experience"],["education","Education"],["achievements","Achievements"],["projects","Projects"],["reviews","Reviews"],["hire","Hire Me"],["resume","Resume"],["contact","Contact"]] as const;
+const projects = [
+  ["01","Continual Anomaly Detection","Computer Vision / Research","Continual-learning research for industrial anomaly detection using transformer representations and nearest-embedding methods on MVTec AD.",["PyTorch","ViT","DNE","MVTec"],"pink"],
+  ["02","Real-Time Sentiment API","NLP / Backend","A real-time sentiment service built around inference, clean API boundaries and practical fallback data strategies.",["Python","FastAPI","NLP","REST"],"violet"],
+  ["03","AI Resume Matching","Full Stack / AI","A job-board experience connecting candidates and opportunities through structured resume and job information.",["Next.js","Django","SQL","React"],"cyan"],
+  ["04","Arena — 2D Tactical Shooter","Game Development","A responsive 2D tactical shooter prototype built around gameplay systems, interaction and real-time controls.",["Unity","C#","Game Dev"],"orange"],
+] as const;
+const skills = [["Python",92],["Machine Learning",90],["Computer Vision",88],["React / TypeScript",84],["PyTorch",86],["Backend / APIs",82]] as const;
 
-  const scrollToProjects = () => {
-    document.getElementById("projects")?.scrollIntoView({
-      behavior: "smooth",
-    });
-  };
+function Icon({children}:{children:ReactNode}){return <span className="text-icon" aria-hidden="true">{children}</span>}
+function Button({href,children,secondary=false}:{href:string;children:ReactNode;secondary?:boolean}){return <a href={href}><motion.span className={`magnetic-button ${secondary?"secondary":""}`} whileHover={{y:-3,scale:1.015}} whileTap={{scale:.98}}>{children}</motion.span></a>}
+function Tilt({children,className=""}:{children:ReactNode;className?:string}){const x=useMotionValue(0),y=useMotionValue(0);const sx=useSpring(x,{stiffness:160,damping:18}),sy=useSpring(y,{stiffness:160,damping:18});const rx=useTransform(sy,[-.5,.5],[5,-5]),ry=useTransform(sx,[-.5,.5],[-5,5]);return <motion.div className={`tilt-card ${className}`} style={{rotateX:rx,rotateY:ry,transformPerspective:900}} onMouseMove={e=>{const r=e.currentTarget.getBoundingClientRect();x.set((e.clientX-r.left)/r.width-.5);y.set((e.clientY-r.top)/r.height-.5)}} onMouseLeave={()=>{x.set(0);y.set(0)}}>{children}</motion.div>}
 
-  const sendEmail = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!form.current) return;
-
-    emailjs
-      .sendForm(
-        "service_veg4q7f",
-        "template_5f5ml0r",
-        form.current,
-        "S_NPJ83Fexgch_fjj"
-      )
-      .then(() => {
-        alert("Message sent!");
-        form.current?.reset();
-      });
-  };
-
-  const projects = [
-    { title: "Continual Anomaly Detection", front: "GPM Learning", back: "20-task system preventing forgetting" },
-    { title: "Pneumonia Detection", front: "DenseNet121", back: "Medical image classification" },
-    { title: "Flower Detection Bot", front: "CV + Speech", back: "Robotics + detection system" },
-    { title: "Sentiment API", front: "NLP API", back: "Real-time sentiment analysis" },
-    { title: "Chatbot AI", front: "Conversational AI", back: "Transformer-based chatbot" },
-    { title: "Image Classifier", front: "CNN Model", back: "Multi-class classification system" },
-    { title: "AI Dashboard", front: "Data Visualization", back: "Metrics + anomaly tracking UI" },
-  ];
-
-  return (
-    <>
-      <Background />
-
-      {/* PROFILE IMAGE */}
-      <img src={profile} className="profile-top" />
-
-      {/* HERO */}
-      <section className="hero-section">
-        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          Ibtism Gul
-        </motion.h1>
-
-        <p>AI Engineer • Machine Learning • Computer Vision</p>
-
-        <button onClick={scrollToProjects}>View Projects</button>
+function App(){
+  const form=useRef<HTMLFormElement>(null); const [sending,setSending]=useState(false); const [status,setStatus]=useState<"success"|"error"|null>(null); const [menu,setMenu]=useState(false);
+  const send=async(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();if(!form.current||sending)return;const data=new FormData(form.current);if(String(data.get("website")||""))return;setSending(true);setStatus(null);try{await emailjs.sendForm("service_vd6x4w5","template_w61eawe",form.current,{publicKey:"StWST4-3BSlTTmjIo"});form.current.reset();setStatus("success")}catch(err){console.error(err);setStatus("error")}finally{setSending(false)}};
+  return <div className="site-shell"><Background/>
+    <header className="nav-wrap"><nav className="nav"><a className="brand" href="#home" onClick={()=>setMenu(false)}><span className="brand-mark">IG</span><span>Ibtism<span className="accent">.</span></span></a><div className={`nav-links ${menu?"open":""}`}>{nav.map(([id,label])=><a key={id} href={`#${id}`} onClick={()=>setMenu(false)}>{label}</a>)}<a className="nav-cta" href="#contact">Let's talk →</a></div><button className="menu-toggle" onClick={()=>setMenu(v=>!v)}>{menu?"×":"☰"}</button></nav></header>
+    <main>
+      <section id="home" className="hero"><div className="hero-grid"/><div className="orbit-one"/><div className="orbit-two"/>
+        <motion.div className="hero-copy" initial={{opacity:0,y:35}} animate={{opacity:1,y:0}} transition={{duration:.9}}><div className="eyebrow"><span className="status-dot"/> Available for selected projects</div><h1>Building <span>intelligent</span><br/>digital experiences.</h1><p className="hero-lead">AI/ML engineer and full-stack developer crafting research-driven systems, thoughtful interfaces and products that actually work.</p><div className="hero-actions"><Button href="#projects">Explore my work →</Button><Button href="#contact" secondary>Start a conversation ✉</Button></div><div className="hero-meta"><span><strong>AI / ML</strong> · Computer Vision · Full Stack</span><span className="meta-line"/><span>Research → Product</span></div></motion.div>
+        <motion.div className="hero-portrait" initial={{opacity:0,scale:.9,x:50}} animate={{opacity:1,scale:1,x:0}} transition={{duration:1.1,delay:.15}}><div className="portrait-halo"/><div className="portrait-frame"><img src={profile} alt="Ibtism Gul"/><div className="portrait-scan"/><div className="portrait-label"><span>IBTISM GUL</span><small>AI / SOFTWARE ENGINEER</small></div></div><div className="floating-chip chip-one">PYTORCH</div><div className="floating-chip chip-two">REACT</div><div className="floating-chip chip-three">VISION</div></motion.div><a className="scroll-cue" href="#about">Scroll to explore <span className="scroll-line"/></a>
       </section>
 
-      {/* PROJECTS */}
-      <section id="projects" className="section">
-        <h2>Projects</h2>
+      <section id="about" className="section"><div className="section-heading"><span>01 / About</span><h2>A builder between<br/><em>research and reality.</em></h2></div><div className="about-grid"><div className="about-copy"><p className="lead-paragraph">I’m Ibtism Gul — an AI/ML-focused software engineer who enjoys taking complex technical ideas and turning them into clear, usable products.</p><p>My work spans computer vision, continual learning, NLP, APIs and interactive web applications. I care about both sides: the intelligence behind a system and the experience around it.</p><p>This portfolio is a living workspace — part resume, part project lab and part invitation to build something ambitious together.</p><div className="signature-row"><span className="signature">IG</span><span>Curious by default. <strong>Precise by choice.</strong></span></div></div><div className="skills-panel">{skills.map(([name,value],i)=><div className="skill-row" key={name}><div className="skill-head"><span>{name}</span><span>{value}%</span></div><div className="skill-track"><motion.div className="skill-fill" initial={{width:0}} whileInView={{width:`${value}%`}} viewport={{once:true}} transition={{duration:.9,delay:i*.08}}/></div></div>)}</div></div></section>
 
-        <div className="projects">
-          {projects.map((p, i) => (
-            <div
-              key={i}
-              className="flip-card"
-              onClick={(e) =>
-                e.currentTarget.classList.toggle("flipped")
-              }
-            >
-              <div className="flip-inner">
-                <div className="flip-front">
-                  <h3>{p.title}</h3>
-                  <p>{p.front}</p>
-                </div>
-                <div className="flip-back">
-                  <p>{p.back}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <section id="experience" className="section"><div className="section-heading compact"><span>02 / Experience</span><h2>The journey so far.</h2></div><div className="timeline">{[["01","AI / ML Engineering","Research & project work","Designing and implementing computer-vision, continual-learning and NLP systems from experiments through usable APIs."],["02","Full-Stack Development","Product engineering","Building responsive interfaces and backend-connected applications with React, TypeScript, Python and modern web tooling."],["03","Game & Interactive Development","Unity / C#","Exploring interaction, game mechanics and real-time systems through hands-on 2D game development."]].map((item,i)=><motion.div className="timeline-item" key={item[0]} initial={{opacity:0,x:i%2?25:-25}} whileInView={{opacity:1,x:0}} viewport={{once:true,amount:.3}} transition={{duration:.6}}><div className="timeline-num">{item[0]}</div><div className="timeline-body"><span className="mini-label">{item[2]}</span><h3>{item[1]}</h3><p>{item[3]}</p></div><span>→</span></motion.div>)}</div></section>
 
-      {/* CONTACT */}
-      <section className="section">
-        <h2>Contact</h2>
+      <section id="education" className="section"><div className="section-heading compact"><span>03 / Education</span><h2>Learning with intention.</h2></div><div className="education-grid"><Tilt><div className="edu-year">2024 — 2027</div><span className="mini-label">Undergraduate</span><h3>Bachelor of Computer Science</h3><p>Software Engineering</p><div className="edu-footer">Universiti Sains Malaysia · USM</div></Tilt><Tilt><div className="edu-year">2023 — 2024</div><span className="mini-label">Undergraduate</span><h3>B.Tech / Computer Science</h3><p>Data Science</p><div className="edu-footer">Amity University Noida</div></Tilt></div></section>
 
-        <form ref={form} onSubmit={sendEmail}>
-          <input name="user_name" placeholder="Name" required />
-          <input name="user_email" placeholder="Email" required />
-          <textarea name="message" placeholder="Message" required />
+      <section id="achievements" className="section"><div className="section-heading compact"><span>04 / Achievements</span><h2>Highlights, not hype.</h2></div><div className="highlight-grid">{[["Research-driven engineering","Build end-to-end experimental systems rather than isolated model demos."],["Full-stack range","Move from model training and APIs to polished interactive interfaces."],["Project-first mindset","Turn ideas into tangible software with measurable behavior."],["Continuous learning","Explore new architectures and workflows through implementation."]].map(([title,text],i)=><motion.div className="highlight-card" key={title} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*.08}}><div className="icon-box">✦</div><span>0{i+1}</span><h3>{title}</h3><p>{text}</p></motion.div>)}</div></section>
 
-          <button type="submit">Send Message</button>
-        </form>
-      </section>
-    </>
-  );
+      <section id="projects" className="section projects-section"><div className="section-heading"><span>05 / Selected work</span><h2>Projects that made<br/><em>the ideas tangible.</em></h2></div><div className="project-grid">{projects.map(([num,title,category,description,stack,accent],i)=><motion.article className={`project-card ${accent}`} key={title} initial={{opacity:0,y:35}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.2}} transition={{duration:.6,delay:i*.06}} whileHover={{y:-8}}><div className="project-top"><span>{num}</span><span>↗</span></div><div className="project-content"><span className="mini-label">{category}</span><h3>{title}</h3><p>{description}</p></div><div className="tag-row">{stack.map(tag=><span key={tag}>{tag}</span>)}</div></motion.article>)}</div></section>
+
+      <section id="reviews" className="section"><div className="section-heading compact"><span>06 / Reviews</span><h2>Real feedback, when<br/>the work is done.</h2></div><div className="review-grid">{[["01","Project collaboration"],["02","Technical work"],["03","Working together"]].map(([num,title])=><Tilt key={num} className="review-card"><div className="stars">★★★★★</div><p>“This space is ready for an authentic client, teammate or collaborator testimonial. No invented reviews — only verified feedback.”</p><div className="review-author"><span>{num}</span><div><strong>{title}</strong><small>Verified testimonial slot</small></div></div></Tilt>)}</div></section>
+
+      <section id="hire" className="section hire-section"><div className="hire-shell"><div className="hire-copy"><span className="eyebrow">07 / Hire me</span><h2>Have a difficult problem?<br/><span>Good. I like those.</span></h2><p>Choose the kind of work you need and let’s turn the brief into a concrete plan.</p></div><div className="hire-cards">{[["AI / ML","Models, experiments, computer vision & NLP."],["Full Stack","Web apps, APIs, dashboards & integrations."],["Prototype","Turn an idea into a working technical MVP."]].map(([title,text])=><a className="hire-card" href="#contact" key={title}><div className="icon-box">✦</div><h3>{title}</h3><p>{text}</p><span>Discuss a project →</span></a>)}</div></div></section>
+
+      <section id="resume" className="section"><div className="resume-shell"><div><span className="mini-label">08 / Resume</span><h2>A concise view of<br/>the whole picture.</h2><p>Open the resume card and use Print / Save as PDF for a clean downloadable copy.</p></div><Button href="#resume-card">↓ Open resume</Button></div><div id="resume-card" className="resume-card"><div className="resume-header"><div><span className="mini-label">CURRICULUM VITAE</span><h3>Ibtism Gul</h3><p>AI / ML Engineer · Software Developer</p></div><div className="resume-links"><a href="#contact">✉ Contact</a><a href="#projects">⌘ Portfolio</a></div></div><div className="resume-columns"><div><h4>Profile</h4><p>AI/ML-focused software engineer building research-driven systems and end-to-end digital products across computer vision, NLP, APIs and interactive web applications.</p><h4>Core skills</h4><p>Python · PyTorch · Computer Vision · Machine Learning · React · TypeScript · Next.js · Node.js · SQL · MongoDB · Unity · C#</p></div><div><h4>Education</h4><p><strong>Universiti Sains Malaysia</strong><br/>B.Comp. Science — Software Engineering<br/>2024 — 2027</p><p><strong>Amity University Noida</strong><br/>B.Tech — Data Science<br/>2023 — 2024</p></div><div><h4>Selected projects</h4><p>Continual Anomaly Detection · Sentiment API · AI Resume Matching · Arena 2D Tactical Shooter</p><h4>Focus</h4><p>Research → Engineering → Product</p></div></div><button className="print-button" onClick={()=>window.print()}>↓ Print / Save as PDF</button></div></section>
+
+      <section id="contact" className="section contact-section"><div className="contact-grid"><div className="contact-copy"><span className="eyebrow">09 / Contact</span><h2>Let’s make something<br/><span>worth shipping.</span></h2><p>Tell me what you’re building, what’s blocked, or what you want to explore. I’ll get back to you through email.</p><div className="contact-direct"><a href="#contact">✉ Use the contact form below</a><div className="social-row"><a href="https://github.com/suhaff" target="_blank" rel="noreferrer">GitHub</a><a href="#resume">CV</a></div></div></div><form ref={form} onSubmit={send} className="contact-form"><div className="form-row"><label><span>Name</span><input name="user_name" placeholder="Your name" autoComplete="name" required/></label><label><span>Email</span><input type="email" name="user_email" placeholder="you@example.com" autoComplete="email" required/></label></div><label><span>What are you building?</span><input name="subject" placeholder="Project, collaboration, freelance..." required/></label><label><span>Message</span><textarea name="message" placeholder="Give me the context, goals and anything you already know..." rows={7} required/></label><input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><div className="form-bottom"><small>Direct email delivery powered by EmailJS.</small><button className="submit-button" type="submit" disabled={sending}>{sending?"Sending...":"Send message →"}</button></div>{status==="success"&&<div className="form-status success">✓ Message sent successfully. I’ll get back to you soon.</div>}{status==="error"&&<div className="form-status error">Something went wrong. Please try again.</div>}</form></div></section>
+    </main><footer className="footer"><a className="brand" href="#home"><span className="brand-mark">IG</span><span>Ibtism<span className="accent">.</span></span></a><span>Designed & built with React, TypeScript and motion.</span><a href="#home">Back to top ↑</a></footer>
+  </div>
 }
-
 export default App;
